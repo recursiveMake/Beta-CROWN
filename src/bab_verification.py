@@ -23,13 +23,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--no_solve_slope', action='store_false', dest='solve_slope', help='do not optimize slope/alpha in compute bounds')
 parser.add_argument("--load", type=str, default="sdp_models/cnn_b_adv.model", help='Load pretrained model')
 parser.add_argument("--device", type=str, default="cuda", choices=["cpu", "cuda"], help='use cpu or cuda')
-parser.add_argument("--data", type=str, default="CIFAR_SAMPLE", choices=["MNIST", "CIFAR", "CIFAR_SAMPLE", "MNIST_SAMPLE"], help='dataset')
+parser.add_argument("--data", type=str, default="CIFAR_SAMPLE", choices=["MNIST", "CIFAR", "MIMICUS", "CIFAR_SAMPLE", "MNIST_SAMPLE"], help='dataset')
 parser.add_argument("--seed", type=int, default=100, help='random seed')
 parser.add_argument("--norm", type=float, default='inf', help='p norm for epsilon perturbation')
 parser.add_argument("--bound_type", type=str, default="CROWN-IBP",
                     choices=["IBP", "CROWN-IBP", "CROWN"], help='method of bound analysis')
 parser.add_argument("--model", type=str, default="cnn_4layer_b",
-                    help='model name (cifar_model, cifar_model_deep, cifar_model_wide, cnn_4layer, cnn_4layer_b, mnist_cnn_4layer)')
+                    help='model name (cifar_model, cifar_model_deep, cifar_model_wide, cnn_4layer, cnn_4layer_b, mnist_cnn_4layer, mimicus)')
 parser.add_argument("--batch_size", type=int, default=64, help='batch size')
 parser.add_argument("--bound_opts", type=str, default="same-slope", choices=["same-slope", "zero-lb", "one-lb"],
                     help='bound options for relu')
@@ -98,13 +98,16 @@ def main(args):
 
     model_ori = load_model(args, weights_loaded=True)
 
-    if "SAMPLE" in args.data:
+    if "SAMPLE" in args.data or args.data == "MIMICUS":
         X, labels, runnerup, data_max, data_min, eps_temp = load_sampled_dataset(args)
     else:
         test_data, data_max, data_min = load_dataset(args)
 
     # loading verification properties from pickle files
     gt_results = load_pickle_results(args)
+    if args.data == "MIMICUS":
+        gt_results["label"] = labels
+        gt_results["target"] = runner_up
 
     bnb_ids = gt_results.index[args.start:args.end]
 

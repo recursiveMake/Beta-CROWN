@@ -93,6 +93,17 @@ def mnist_cnn_4layer():
         nn.Linear(100, 10),
     )
 
+def mimicus():
+    return nn.Sequential(
+        nn.Linear(135, 100),
+        nn.ReLU(),
+        nn.Linear(100, 50),
+        nn.ReLU(),
+        nn.Linear(50, 25),
+        nn.ReLU(),
+        nn.Linear(25, 2)
+    )
+
 
 def load_model(args, weights_loaded=True):
     """
@@ -108,7 +119,7 @@ def load_model(args, weights_loaded=True):
     if args.device == 'cpu':
         map_location = torch.device('cpu')
 
-    if 'cnn_4layer' not in args.model:
+    if 'cnn_4layer' not in args.model and args.model != 'mimicus':
         model_ori.load_state_dict(torch.load(args.load, map_location)['state_dict'][0])
     else:
         model_ori.load_state_dict(torch.load(args.load, map_location))
@@ -146,6 +157,18 @@ def preprocess_cifar(image, inception_preprocess=False, perturbation=False):
         return image / rescaled_devs
     else:
         return (image - rescaled_means) / rescaled_devs
+
+
+def get_normalizer(data, eps=1e-10):
+    mean = data.mean(axis=0)
+    std = data.std(axis=0)
+    stdev = numpy.where(std < eps, eps, std)
+    return mean, stdev
+
+
+def normalize(data, normalizer):
+    mean, stdev = normalizer
+    return (data - mean) / stdev
 
 
 def load_cifar_sample_data(normalized=True, MODEL="a_mix"):
@@ -189,6 +212,15 @@ def load_mnist_sample_data(MODEL="mnist_a_adv"):
     print("############################")
     return X, y, runnerup
 
+def load_mimicus_data(limit=100):
+    X_train = np.load("../data/X_train.npy")
+    n = get_normalizer(X_train)
+    X = normalize(np.load("../data/X_test.npy")[:limit], n)
+    y = np.load("../data/y_test.npy")[:limit]
+    X = torch.from_numpy(X.astype(np.float32))
+    y = torch.from_numpy(runnerup.astype(np.int))
+    runnerup = 1 - y
+    return X, y, runnerup
 
 def load_dataset(args):
     """
@@ -230,6 +262,12 @@ def load_sampled_dataset(args):
         data_min = torch.tensor(0.).reshape(1,-1,1,1)
         eps_temp = 0.3
         eps_temp = torch.tensor(eps_temp).reshape(1,-1,1,1)
+    elif args.data == "MIMICUS":
+        X, labels, runnerup = load_mimicus_data()
+        eps_temp = 0.1
+        eps_temp = torch.tensor(eps_temp).reshape(1, -1)
+        data_max = torch.tensor(1.).reshape(1,-1)
+        data_min = torch.tensor(0.).reshape(1,-1)
     return X, labels, runnerup, data_max, data_min, eps_temp
 
 
@@ -253,6 +291,9 @@ def load_pickle_results(args):
     elif args.model == "mnist_cnn_4layer":
         gt_results = pd.read_pickle('./data/compare_results/mnist-cnn-a-adv.pkl')
         gt_results["Idx"] = np.arange(len(gt_results)).astype(np.int)
+    elif args.model == "mimicus":
+        gt_results = pd.DataFrame()
+        df["Idx"] = np.arange(100).astype(np.int)
     else:
         gt_results = pd.read_pickle('./data/base_100.pkl')
     return gt_results
