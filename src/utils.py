@@ -213,10 +213,10 @@ def load_mnist_sample_data(MODEL="mnist_a_adv"):
     return X, y, runnerup
 
 def load_mimicus_data(limit=100):
-    X_train = np.load("../data/X_train.npy")
+    X_train = np.load("./data/mimicus/X_train.npy")
     n = get_normalizer(X_train)
-    X = normalize(np.load("../data/X_test.npy")[:limit], n)
-    y = np.load("../data/y_test.npy")[:limit]
+    X = normalize(np.load("./data/mimicus/X_test.npy")[:limit], n)
+    y = np.load("./data/mimicus/y_test.npy")[:limit]
     X = torch.from_numpy(X.astype(np.float32))
     y = torch.from_numpy(runnerup.astype(np.int))
     runnerup = 1 - y
