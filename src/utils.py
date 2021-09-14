@@ -162,7 +162,7 @@ def preprocess_cifar(image, inception_preprocess=False, perturbation=False):
 def get_normalizer(data, eps=1e-10):
     mean = data.mean(axis=0)
     std = data.std(axis=0)
-    stdev = numpy.where(std < eps, eps, std)
+    stdev = np.where(std < eps, eps, std)
     return mean, stdev
 
 
@@ -218,7 +218,7 @@ def load_mimicus_data(limit=100):
     X = normalize(np.load("./data/mimicus/X_test.npy")[:limit], n)
     y = np.load("./data/mimicus/y_test.npy")[:limit]
     X = torch.from_numpy(X.astype(np.float32))
-    y = torch.from_numpy(runnerup.astype(np.int))
+    y = torch.from_numpy(y.astype(np.int))
     runnerup = 1 - y
     return X, y, runnerup
 
@@ -293,7 +293,7 @@ def load_pickle_results(args):
         gt_results["Idx"] = np.arange(len(gt_results)).astype(np.int)
     elif args.model == "mimicus":
         gt_results = pd.DataFrame()
-        df["Idx"] = np.arange(100).astype(np.int)
+        gt_results["Idx"] = np.arange(100).astype(np.int)
     else:
         gt_results = pd.read_pickle('./data/base_100.pkl')
     return gt_results

@@ -107,7 +107,7 @@ def main(args):
     gt_results = load_pickle_results(args)
     if args.data == "MIMICUS":
         gt_results["label"] = labels
-        gt_results["target"] = runner_up
+        gt_results["target"] = runnerup
 
     bnb_ids = gt_results.index[args.start:args.end]
 
@@ -118,7 +118,7 @@ def main(args):
         torch.cuda.empty_cache()
         print(gt_results.loc[idx])
 
-        if "SAMPLE" not in args.data:
+        if "SAMPLE" not in args.data and "MIMICUS" not in args.data:
             imag_idx = int(gt_results.loc[idx]["Idx"])
             prop_idx = int(gt_results.loc[idx]['prop'])
             eps_temp = gt_results.loc[idx]["Eps"]  # the eps_temp here is already normalized
