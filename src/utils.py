@@ -163,12 +163,17 @@ def get_normalizer(data, eps=1e-10):
     mean = data.mean(axis=0)
     std = data.std(axis=0)
     stdev = np.where(std < eps, eps, std)
-    return mean, stdev
+    d_min = data.min(axis=0)
+    d_max = data.max(axis=0)
+    d_diff = d_max - d_min
+    d_safe = np.where(d_diff < eps, eps, d_diff)
+    return mean, stdev, d_min, d_safe
 
 
 def normalize(data, normalizer):
-    mean, stdev = normalizer
-    return (data - mean) / stdev
+    mean, stdev, d_min, d_safe = normalizer
+    scaled = (data - mean) / stdev
+    return (scaled - d_min) / d_safe
 
 
 def load_cifar_sample_data(normalized=True, MODEL="a_mix"):
