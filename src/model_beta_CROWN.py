@@ -43,7 +43,8 @@ def add_single_prop(layers, gt, cls):
     gt: ground truth lablel
     cls: class we want to verify against
     """
-    additional_lin_layer = nn.Linear(10, 1, bias=True)
+    # additional_lin_layer = nn.Linear(10, 1, bias=True)
+    additional_lin_layer = nn.Linear(2, 1, bias=True)
     lin_weights = additional_lin_layer.weight.data
     lin_weights.fill_(0)
     lin_bias = additional_lin_layer.bias.data

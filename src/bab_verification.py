@@ -149,7 +149,7 @@ def main(args):
             print(f"no prop_idx is given, randomly select one")
 
         if args.mode == "verified-acc":
-            pidx_start, pidx_end = 0, 10
+            pidx_start, pidx_end = 0, 1
             save_path = 'Verified-acc_{}_{}_alpha01_beta_{}_005_iter20_b{}_start_{}.npy'.\
                         format(args.model, args.data, not args.no_beta, args.batch_size, args.start)
         else:
