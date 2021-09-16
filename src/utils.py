@@ -269,7 +269,7 @@ def load_sampled_dataset(args):
         eps_temp = torch.tensor(eps_temp).reshape(1,-1,1,1)
     elif args.data == "MIMICUS":
         X, labels, runnerup = load_mimicus_data()
-        eps_temp = 0.1
+        eps_temp = 0.01
         eps_temp = torch.tensor(eps_temp).reshape(1, -1)
         data_max = torch.tensor(1.).reshape(1,-1)
         data_min = torch.tensor(0.).reshape(1,-1)
