@@ -168,8 +168,9 @@ class LiRPAConvNet:
 
     def get_candidate_parallel(self, model, lb, ub, batch):
         # get the intermediate bounds in the current model
-        lower_bounds = [self.input_domain[:, :, :, 0].squeeze(-1).repeat(batch, 1, 1, 1)]
-        upper_bounds = [self.input_domain[:, :, :, 1].squeeze(-1).repeat(batch, 1, 1, 1)]
+        # print(f"shape: {self.input_domain.shape}")
+        lower_bounds = [self.input_domain[:, 0].squeeze(-1).repeat(batch, 1)]
+        upper_bounds = [self.input_domain[:, 1].squeeze(-1).repeat(batch, 1)]
         idx, i, = 0, 0
         for layer in self.layers:
             if isinstance(layer, nn.ReLU):
@@ -371,9 +372,9 @@ class LiRPAConvNet:
 
             # create new_x here since batch may change
             ptb = PerturbationLpNorm(norm=self.x.ptb.norm, eps=self.x.ptb.eps,
-                                     x_L=self.x.ptb.x_L.repeat(batch * 2, 1, 1, 1),
-                                     x_U=self.x.ptb.x_U.repeat(batch * 2, 1, 1, 1))
-            new_x = BoundedTensor(self.x.data.repeat(batch * 2, 1, 1, 1), ptb)
+                                     x_L=self.x.ptb.x_L.repeat(batch * 2, 1),
+                                     x_U=self.x.ptb.x_U.repeat(batch * 2, 1))
+            new_x = BoundedTensor(self.x.data.repeat(batch * 2, 1), ptb)
             self.net(new_x)  # batch may change, so we need to do forward to set some shapes here
 
             if len(slope_select) > 0:
